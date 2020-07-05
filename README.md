@@ -1,1 +1,1 @@
-#Sample Deno Applicatio
+#Sample Deno Application
