@@ -1,0 +1,16 @@
+stages:
+  - build
+
+variables:
+  REGISTRY_GROUP_PROJECT: $CI_REGISTRY/root/gitlab-ci-shell-example
+
+before_script:
+  # - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+  - echo 'start'
+
+build-image:
+  stage: build
+  tags:
+    - shell
+  script:
+    - echo 'run script'
