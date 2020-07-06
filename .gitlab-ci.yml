@@ -1,16 +1,35 @@
+---
+
+include:
+  - /base_semantic_release_stage.yml
+
 stages:
-  - build
+  - Code Quality
+  - Release
 
-variables:
-  REGISTRY_GROUP_PROJECT: $CI_REGISTRY/root/gitlab-ci-shell-example
-
-before_script:
-  # - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
-  - echo 'start'
-
-build-image:
-  stage: build
-  tags:
-    - shell
+Lint:
+  stage: Code Quality
+  image: node:14-alpine
   script:
-    - echo 'run script'
+    - npx yaml-lint *.yml
+    - npx prettier --check *.yml
+
+Release:
+  extends: .base_semantic_release_stage
+  variables:
+    SEMANTIC_RELEASE_PLUGINS: "@semantic-release/changelog @semantic-release/exec @semantic-release/git"
+
+Test AutoDevOps on SocialGouv/sample-next-app:
+  stage: Code Quality
+  image: curlimages/curl:7.71.0
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - "[[ -z ${SOCIAL_GOUV_SAMPLE_NEXT_APP_PROJECT_ID} ]] && exit ${CI_JOB_SKIP_EXIT_CODE:-0}"
+    - curl --request POST
+        --form ref="autodevops-master"
+        --form token="${CI_JOB_TOKEN}"
+        "${CI_API_V4_URL}/projects/${SOCIAL_GOUV_SAMPLE_NEXT_APP_PROJECT_ID}/trigger/pipeline"
+  only:
+    refs:
+      - master
